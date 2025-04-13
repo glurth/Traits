@@ -1,0 +1,179 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 604155e18f424884d8d9e51800d25c86, type: 3}
+  m_Name: AllMeasurementUnits
+  m_EditorClassIdentifier: 
+  serializedList:
+  - id: 2818132012176419501
+    name: Percent
+    shortName: '%'
+    icon: {fileID: 0}
+  - id: 1247434724494307741
+    name: Kilogram
+    shortName: kg
+    icon: {fileID: 0}
+  - id: -3807409433902408358
+    name: Pound
+    shortName: lb
+    icon: {fileID: 0}
+  - id: 2018070636071730434
+    name: Ton
+    shortName: t
+    icon: {fileID: 0}
+  - id: -7448754097558861545
+    name: Meter
+    shortName: m
+    icon: {fileID: 0}
+  - id: 4295951501151426286
+    name: Kilometer
+    shortName: km
+    icon: {fileID: 0}
+  - id: 2582603865416134050
+    name: Centimeter
+    shortName: cm
+    icon: {fileID: 0}
+  - id: -1516596766496064351
+    name: Millimeter
+    shortName: mm
+    icon: {fileID: 0}
+  - id: -6914587027576704713
+    name: Mile
+    shortName: mi
+    icon: {fileID: 0}
+  - id: -4002093785902965230
+    name: Foot
+    shortName: ft
+    icon: {fileID: 0}
+  - id: 1041358024799543742
+    name: Inch
+    shortName: in
+    icon: {fileID: 0}
+  - id: 2679034801012169343
+    name: Liter
+    shortName: L
+    icon: {fileID: 0}
+  - id: -4948845623564124098
+    name: Milliliter
+    shortName: mL
+    icon: {fileID: 0}
+  - id: 6074747224336298405
+    name: Cubic Meter
+    shortName: cu-m
+    icon: {fileID: 0}
+  - id: -5729112180436080447
+    name: Cubic Centimeter
+    shortName: cu-cm
+    icon: {fileID: 0}
+  - id: -2552669715009360702
+    name: Second
+    shortName: s
+    icon: {fileID: 0}
+  - id: 5348745576230326370
+    name: Minute
+    shortName: min
+    icon: {fileID: 0}
+  - id: -3869578987758920011
+    name: Hour
+    shortName: hr
+    icon: {fileID: 0}
+  - id: 5594198088907125251
+    name: Day
+    shortName: d
+    icon: {fileID: 0}
+  - id: 848608110519045842
+    name: Week
+    shortName: wk
+    icon: {fileID: 0}
+  - id: 4307962761929194579
+    name: Year
+    shortName: yr
+    icon: {fileID: 0}
+  - id: 5420776278690453755
+    name: Kilowatt
+    shortName: kW
+    icon: {fileID: 0}
+  - id: 5559375368851693217
+    name: Watt
+    shortName: W
+    icon: {fileID: 0}
+  - id: -6233374338696374216
+    name: Joule
+    shortName: J
+    icon: {fileID: 0}
+  - id: 2388604605716466460
+    name: Newton
+    shortName: N
+    icon: {fileID: 0}
+  - id: 8140549111721923347
+    name: Newton-Meter
+    shortName: Nm
+    icon: {fileID: 0}
+  - id: -9032890014930172358
+    name: Pound-Foot
+    shortName: lb-ft
+    icon: {fileID: 0}
+  - id: -1426324843655925218
+    name: Celsius
+    shortName: "\xB0C"
+    icon: {fileID: 0}
+  - id: -1700779521193272879
+    name: Fahrenheit
+    shortName: "\xB0F"
+    icon: {fileID: 0}
+  - id: -4351337761787422068
+    name: Kelvin
+    shortName: K
+    icon: {fileID: 0}
+  - id: 6650321329080700529
+    name: Meter per second
+    shortName: m/s
+    icon: {fileID: 0}
+  - id: 2985284298215902131
+    name: Kilometer per hour
+    shortName: km/h
+    icon: {fileID: 0}
+  - id: -4150683179366139559
+    name: Miles per hour
+    shortName: mph
+    icon: {fileID: 0}
+  - id: -2562516306001074649
+    name: Decibel
+    shortName: dB
+    icon: {fileID: 0}
+  - id: -5787183080464084503
+    name: Volt
+    shortName: V
+    icon: {fileID: 0}
+  - id: 4171824922701194030
+    name: Ampere
+    shortName: A
+    icon: {fileID: 0}
+  - id: 728476870821099876
+    name: Ohm
+    shortName: "\u03A9"
+    icon: {fileID: 0}
+  - id: 8546647489814626746
+    name: Hit Points
+    shortName: HP
+    icon: {fileID: 0}
+  - id: 7490244833475192983
+    name: Gold
+    shortName: G
+    icon: {fileID: 0}
+  - id: -8980917852957444274
+    name: Dollar
+    shortName: $
+    icon: {fileID: 0}
+  - id: 7351468148510396638
+    name: True/False
+    shortName: bit
+    icon: {fileID: 0}

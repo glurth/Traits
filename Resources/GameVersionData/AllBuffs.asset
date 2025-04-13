@@ -1,0 +1,150 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eed563fd2be647d478dbd0e3d10b0c05, type: 3}
+  m_Name: AllBuffs
+  m_EditorClassIdentifier: 
+  serializedList:
+  - id: -1064014576864593932
+    name: Haste
+    Sprite: {fileID: 0}
+    Effects:
+      editorNewKeyValue:
+        id: 0
+        name: 
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: 0
+          name: 
+          shortName: 
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 0
+      editorNewValueValue: []
+      pairKList:
+      - id: -6539251224368347324
+        name: Speed
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: -4150683179366139559
+          name: Miles per hour
+          shortName: mph
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 0
+    Duration:
+      ticks: 100000000
+  - id: -7322650110700444177
+    name: Slow
+    Sprite: {fileID: 0}
+    Effects:
+      editorNewKeyValue:
+        id: 0
+        name: 
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: 0
+          name: 
+          shortName: 
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 0
+      editorNewValueValue: []
+      pairKList:
+      - id: -6539251224368347324
+        name: Speed
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: -4150683179366139559
+          name: Miles per hour
+          shortName: mph
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 0
+    Duration:
+      ticks: 100000000
+  - id: 7629311262073576227
+    name: Small Heal
+    Sprite: {fileID: 0}
+    Effects:
+      editorNewKeyValue:
+        id: 0
+        name: 
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: 0
+          name: 
+          shortName: 
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 0
+      editorNewValueValue: []
+      pairKList:
+      - id: -7728349885440108960
+        name: Health
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: 8546647489814626746
+          name: Hit Points
+          shortName: HP
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 1
+    Duration:
+      ticks: 0
+  - id: 4408790976429703360
+    name: Vitality
+    Sprite: {fileID: 0}
+    Effects:
+      editorNewKeyValue:
+        id: 0
+        name: 
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: 0
+          name: 
+          shortName: 
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 0
+      editorNewValueValue: []
+      pairKList:
+      - id: -7728349885440108960
+        name: Health
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: 8546647489814626746
+          name: Hit Points
+          shortName: HP
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 1
+      - id: -6539251224368347324
+        name: Speed
+        Sprite: {fileID: 0}
+        Type: 0
+        Impact: 0
+        Unit:
+          id: -4150683179366139559
+          name: Miles per hour
+          shortName: mph
+          icon: {fileID: 0}
+        SuperDefaultNumericValue: 0
+    Duration:
+      ticks: 100000000

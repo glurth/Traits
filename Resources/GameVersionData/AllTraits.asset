@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 611916c18ec282846b2a7cf6a97fe4d9, type: 3}
+  m_Name: AllTraits
+  m_EditorClassIdentifier: 
+  serializedList:
+  - id: -7728349885440108960
+    name: Health
+    Sprite: {fileID: 0}
+    Type: 0
+    Impact: 0
+    Unit:
+      id: 8546647489814626746
+      name: Hit Points
+      shortName: HP
+      icon: {fileID: 0}
+    SuperDefaultNumericValue: 1
+  - id: -6539251224368347324
+    name: Speed
+    Sprite: {fileID: 0}
+    Type: 0
+    Impact: 0
+    Unit:
+      id: -4150683179366139559
+      name: Miles per hour
+      shortName: mph
+      icon: {fileID: 0}
+    SuperDefaultNumericValue: 0
+  - id: 4996806615815794532
+    name: Wealth
+    Sprite: {fileID: 0}
+    Type: 0
+    Impact: 0
+    Unit:
+      id: 7490244833475192983
+      name: Gold
+      shortName: G
+      icon: {fileID: 0}
+    SuperDefaultNumericValue: 0
+  - id: -7153575651812833249
+    name: Income
+    Sprite: {fileID: 0}
+    Type: 0
+    Impact: 0
+    Unit:
+      id: 7490244833475192983
+      name: Gold
+      shortName: G
+      icon: {fileID: 0}
+    SuperDefaultNumericValue: 0
