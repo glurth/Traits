@@ -28,7 +28,7 @@ public class Soldier : GameEntity
         if (healthTrait != null)
         {
             // Reduce health by the amount of damage taken, not allowing it to drop below zero
-            float currentHP = base.GetTraitBuffedValue(AllTraits.Health).NumericValue;
+            float currentHP = base.GetBuffedTraitValue(AllTraits.Health).NumericValue;
             float newHP = currentHP - damage;
             if (newHP < 0) newHP = 0;
             float ratio = newHP / currentHP;

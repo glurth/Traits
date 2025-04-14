@@ -65,24 +65,47 @@ namespace EyE.Traits
             Traits = new TraitValues(TypeOfEntity.DefaultTraitValues);
         }
 
+
+        struct LastComputedBuffValue
+        {
+            public DateTime lastComputed;
+            public TraitValue value;
+        }
+        Dictionary<TraitDefinition, LastComputedBuffValue> lastComputedBuffedTraitValues= new Dictionary<TraitDefinition, LastComputedBuffValue>();
+        TimeSpan recomputeTick = new TimeSpan(0,0,0,0,20);//20 ms
         /// <summary>
         /// Gets the buffed value of a trait, applying any active buffs to the base trait value.
+        /// Removes expired/inactive buffs from the GameEntity.
         /// </summary>
         /// <param name="whichTrait">The trait to retrieve the buffed value for.</param>
         /// <returns>The buffed <see cref="TraitValue"/> after applying all active buffs.</returns>
-        public TraitValue GetTraitBuffedValue(TraitDefinition whichTrait, DateTime? asOf =null)
+        public TraitValue GetBuffedTraitValue(TraitDefinition whichTrait, DateTime? asOf =null)
         {
             // Retrieve the base trait value
             TraitValue baseValue = GetTraitBaseValue(whichTrait);
             TraitValue buffedValue = baseValue;
             if(asOf==null)
                 asOf = GameStateDateTime.Now;
-            // Apply each active buff to the base value
-            foreach (var buff in Buffs)
+            //see if we have this trait's value cached, and if so, how recently that was done.
+            if (lastComputedBuffedTraitValues.TryGetValue(whichTrait, out LastComputedBuffValue cachedValue))
             {
-                buffedValue = buff.CalculateModifiedValue(whichTrait, buffedValue, asOf.Value);
+                if (asOf - cachedValue.lastComputed < recomputeTick)
+                    return cachedValue.value;
+                //expired do recompute anyway
             }
-
+            // Apply each active buff to the base value, or remove it if expired
+            for(int i=0;i<Buffs.Count;i++)
+            {
+                BuffInstance buff = Buffs[i];
+                if (!buff.IsActive(asOf.Value))
+                {
+                    Buffs.RemoveAt(i);
+                }
+                else
+                    buffedValue = buff.CalculateModifiedValue(whichTrait, buffedValue, asOf.Value);
+            }
+            //add or overwrite
+            lastComputedBuffedTraitValues[whichTrait]= new LastComputedBuffValue() { lastComputed = asOf.Value, value = buffedValue };
             return buffedValue;
         }
 
@@ -123,20 +146,6 @@ namespace EyE.Traits
             // Create a new BuffInstance
             BuffInstance buff = new BuffInstance(typeOfBuff, startTime);
             Buffs.Add(buff);
-            /*  the following makes it difficult to manually remove permanent bufss, so not doing it- we'll just have to compute 'em each time.
-            // If the buff has a duration, add it to the active buff list
-            if (typeOfBuff.Duration != null)
-            {
-                Buffs.Add(buff);
-            }
-            else
-            {
-                // For permanent buffs, immediately apply the buff's effects to the relevant traits
-                foreach (TraitDefinition traitId in typeOfBuff.Effects.Keys)
-                {
-                    SetTraitValue(traitId, buff.CalculateModifiedValue(traitId, GetTraitBaseValue(traitId), DateTime.Now));
-                }
-            }*/
         }
 
         /// <summary>
@@ -158,7 +167,7 @@ namespace EyE.Traits
         {
             Console.WriteLine($"Buff {buff.TypeOfBuff.Name} has been removed from {entity.ID}.");
         }
-
+        /*
         /// <summary>
         /// Removes expired buffs from the entity based on the current time.
         /// </summary>
@@ -168,7 +177,7 @@ namespace EyE.Traits
             // Remove all buffs that are no longer active
             Buffs.RemoveAll(buff => !buff.IsActive(asOf));
         }
-
+        */
 
         //runtime serialization
 

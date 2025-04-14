@@ -21,6 +21,7 @@ namespace EyE.Traits
     /// 
     /// Equality:
     /// Two BuffArithmetic instances are considered equal if they are of the same type. HashCodes similarly use the type.
+    /// This implies, and requires, that this class and it's variants does NOT contain state data.
     /// 
     /// Note:
     /// Instances are used as dictionary keys; ensure consistent instance handling to avoid key mismatches.
@@ -57,10 +58,10 @@ namespace EyE.Traits
             }
 
             //Compute the Aggregate of all the modifier values, for each arithmatic type
-            Dictionary<BuffArithmetic, float> aggregateValueByArithType = new Dictionary<BuffArithmetic, float>();
+            Dictionary<BuffArithmetic, float> aggregateBuffValueByArithType = new Dictionary<BuffArithmetic, float>();
             foreach (BuffArithmetic t in effectsByArithType.Keys)
             {
-                aggregateValueByArithType[t] = t.Aggregate(effectsByArithType[t]);
+                aggregateBuffValueByArithType[t] = t.Aggregate(effectsByArithType[t]);
             }
 
             // now we need to apply each computation in the appropriate order, using the result of each step as the input for the next
@@ -69,7 +70,7 @@ namespace EyE.Traits
             float value = baseValue;
             foreach (BuffArithmetic t in opOrder)
             {
-                value = t.ComputeAffectedValue(value, aggregateValueByArithType[t]);
+                value = t.ComputeAffectedValue(value, aggregateBuffValueByArithType[t]);
             }
             return value;
         }
@@ -82,21 +83,47 @@ namespace EyE.Traits
         /// It is recommend you separate these by about 100, to make room if you later (or mods) want to fit any in between existing ones.
         /// </summary>
         public abstract int OperationOrder { get; }
+        /// <summary>
+        /// Overridden by descendants to do the math to apply a buff to a value 
+        /// </summary>
+        /// <param name="baseValue"></param>
+        /// <param name="buffValue"></param>
+        /// <returns></returns>
         public abstract float ComputeAffectedValue(float baseValue, float buffValue);
+        /// <summary>
+        /// Overridden by descendants to specify how a set of TraitEffects should be aggregated together into a single value.  
+        /// Usually this is a simple summation, but not necessarily.
+        /// </summary>
+        /// <param name="buffValues">the set of TraitEffects to be aggregated together</param>
+        /// <returns>the computed, aggregated value</returns>
         public abstract float Aggregate(List<TraitEffect> buffValues);
 
+        /// <summary>
+        /// If the type of the passed object is equal to this type, we declare them as equal.  
+        /// This works because instances contain no state data, only Method members.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (obj == null)
                 return false;
             return obj.GetType() == GetType();
         }
+        /// <summary>
+        /// Provides the HashCode of the CurrentType. 
+        /// This works because instances contain no state data, only Method members.
+        /// </summary>
+        /// <returns>HashCode of instance's class type</returns>
         public override int GetHashCode()
         {
             return GetType().GetHashCode();
         }
     }
-    
+
+    /// <summary>
+    /// Additive BuffArithmetic adds the buffValue to the baseTraitValue.
+    /// </summary>
     [Serializable]
     public class Additive : BuffArithmetic
     {
@@ -114,7 +141,17 @@ namespace EyE.Traits
             return sum;
         }
     }
-    //-100% is specified  as -1, this should yield a buffed value of 0
+
+    /// <summary>
+    /// Multiplicative BuffArithmetic multiplies (buffValue+1.0) by the baseTraitValue.
+    /// e.g.
+    /// -100% malus is specified  as -1, this should yield a buffed value of 0
+    /// 0% bonus is specified  as 0, this should yield a buffed value of baseTraitValue
+    /// +50% bonus is specified  as 0.5, this should yield a buffed value of (baseTraitValue*1.5)
+    /// +100% bonus is specified  as 0.5, this should yield a buffed value of (baseTraitValue*2)
+    /// for consistency:
+    /// -200% malus is specified  as -2, this should yield a buffed value of (baseTraitValue* -1)-  the buff is NOT responsible for clipping the output.
+    /// </summary>
     [Serializable]
     public class Multiplicative : BuffArithmetic
     {
@@ -122,14 +159,21 @@ namespace EyE.Traits
 
         public override int OperationOrder { get => 100; }
 
-        //-100% is specified  as -1, this should yield a buffed value of 0
-        // 0% is specified as 0, this should yield no change to the base value
-        // +50% is specified as 0.5, this should yield a basevalue * 1.5
-        // +100% is specified as 1, this should yield a basevalue * 2
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseValue"></param>
+        /// <param name="buffValue"></param>
+        /// <returns></returns>
         public override float ComputeAffectedValue(float baseValue, float buffValue)
         {
             return baseValue * (buffValue + 1f);
         }
+        /// <summary>
+        /// simple summation
+        /// </summary>
+        /// <param name="buffValues"></param>
+        /// <returns></returns>
         public override float Aggregate(List<TraitEffect> buffValues)
         {
             float sum = 0;
