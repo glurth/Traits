@@ -52,7 +52,7 @@ namespace EyE.Traits
     /// and a default numeric value. This class ensures that trait IDs are unique across instances.
     /// </summary>
     [System.Serializable]
-    public class TraitDefinition : TableElement//NameBasedID
+    public class TraitDefinition : TableElement
     {
 
         /// <summary>
@@ -73,7 +73,8 @@ namespace EyE.Traits
         /// <summary>
         /// Gets the unit of measurement for this trait (e.g., "kg", "%", etc.).
         /// </summary>
-        public MeasurementUnit Unit;
+        public MeasurementUnitRef Unit;
+
 
         /// <summary>
         /// Gets the default numeric value for this trait when it is initially defined.
@@ -92,14 +93,23 @@ namespace EyE.Traits
         /// <exception cref="System.Exception">
         /// Thrown when attempting to create a trait with a duplicate identifier.
         /// </exception>
-        public TraitDefinition(string name, ValueType type, PositiveValueImpact impact, MeasurementUnit unit, double superDefaultNumericValue)
+        public TraitDefinition(string name, ValueType type, PositiveValueImpact impact, MeasurementUnit unit, double superDefaultNumericValue) : base()
         {
             //_ID = name.GenerateConsistentID();
             Name = name;
             Type = type;
             Impact = impact;
-            Unit = unit;
+            Unit = new MeasurementUnitRef(unit.ID,unit);
             SuperDefaultNumericValue = superDefaultNumericValue;
+        }
+
+        public static implicit operator TraitDefinitionRef(TraitDefinition r) => new TraitDefinitionRef(r.ID, r );
+    }
+    [System.Serializable]
+    public class TraitDefinitionRef : TableElementRef<TraitDefinition>
+    {
+        public TraitDefinitionRef(long id, TraitDefinition reference=null) : base(id, reference)
+        {
         }
     }
 }

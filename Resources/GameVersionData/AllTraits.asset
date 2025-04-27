@@ -13,47 +13,35 @@ MonoBehaviour:
   m_Name: AllTraits
   m_EditorClassIdentifier: 
   serializedList:
-  - id: -7728349885440108960
+  - id: 41
     name: Health
     Sprite: {fileID: 0}
     Type: 0
     Impact: 0
     Unit:
-      id: 8546647489814626746
-      name: Hit Points
-      shortName: HP
-      icon: {fileID: 0}
+      ID: 37
     SuperDefaultNumericValue: 1
-  - id: -6539251224368347324
+  - id: 42
     name: Speed
     Sprite: {fileID: 0}
     Type: 0
     Impact: 0
     Unit:
-      id: -4150683179366139559
-      name: Miles per hour
-      shortName: mph
-      icon: {fileID: 0}
+      ID: 32
     SuperDefaultNumericValue: 0
-  - id: 4996806615815794532
+  - id: 43
     name: Wealth
     Sprite: {fileID: 0}
     Type: 0
     Impact: 0
     Unit:
-      id: 7490244833475192983
-      name: Gold
-      shortName: G
-      icon: {fileID: 0}
+      ID: 38
     SuperDefaultNumericValue: 0
-  - id: -7153575651812833249
+  - id: 44
     name: Income
     Sprite: {fileID: 0}
     Type: 0
     Impact: 0
     Unit:
-      id: 7490244833475192983
-      name: Gold
-      shortName: G
-      icon: {fileID: 0}
+      ID: 38
     SuperDefaultNumericValue: 0

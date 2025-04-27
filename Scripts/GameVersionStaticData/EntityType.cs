@@ -28,10 +28,10 @@ namespace EyE.Traits
         /// Initializes a new instance of the <see cref="EntityType"/> class with the given name.
         /// </summary>
         /// <param name="name">The name of the entity type.</param>
-        public EntityType(string name, TraitValues defaultTraitValues)
+        public EntityType(string name, TraitValues defaultTraitValues) : base()
         {
             Name = name;//base class will set ID based on this
-            _defaultTraitValues = new TraitValues(defaultTraitValues);
+            _defaultTraitValues = defaultTraitValues;
 
         }
 
@@ -42,7 +42,14 @@ namespace EyE.Traits
         /// <param name="defaultValue">The default value for the trait.</param>
         public void AddTrait(TraitDefinition trait, float defaultValue)
         {
-            DefaultTraitValues.Add(trait, new TraitValue(trait, defaultValue));
+            DefaultTraitValues.Add(trait, defaultValue);
+        }
+    }
+    [System.Serializable]
+    public class EntityTypeRef : TableElementRef<EntityType>
+    {
+        public EntityTypeRef(long id, EntityType reference = null) : base(id, reference)
+        {
         }
     }
 }

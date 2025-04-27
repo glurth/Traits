@@ -11,7 +11,8 @@ namespace EyE.Traits
         private static TraitDefinition _wealth;
         private static TraitDefinition _income;
 
-        public static TraitDefinition Health => _health ??= GetByName("Health");
+        //the following syntax will call getbyname once for each
+        public static TraitDefinition Health => _health ??=GetByName("Health");
         public static TraitDefinition Speed => _speed ??= GetByName("Speed");
         public static TraitDefinition Wealth => _wealth ??= GetByName("Wealth");
         public static TraitDefinition Income => _income ??= GetByName("Income");
@@ -23,7 +24,7 @@ namespace EyE.Traits
             new TraitDefinition("Speed", ValueType.Number, PositiveValueImpact.Positive, AllMeasurementUnits.MilesPerHour, 0),
             new TraitDefinition("Wealth", ValueType.Number, PositiveValueImpact.Positive, AllMeasurementUnits.Gold, 0),
             new TraitDefinition("Income", ValueType.Number, PositiveValueImpact.Positive, AllMeasurementUnits.Gold, 0)
-        };
+            };
 
             return list;
         }

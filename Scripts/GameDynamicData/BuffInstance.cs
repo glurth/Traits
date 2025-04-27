@@ -13,7 +13,7 @@ namespace EyE.Traits
         /// The type of buff applied in this instance, including its effects and duration.
         /// </summary>
         public BuffDefinition TypeOfBuff { get => _TypeOfBuff; }
-        private BuffDefinition _TypeOfBuff;
+        private BuffDefinitionRef _TypeOfBuff;
 
         /// <summary>
         /// The time when the buff was applied to the entity.
@@ -28,7 +28,7 @@ namespace EyE.Traits
         /// <param name="startTime">The time when the buff was applied.</param>
         public BuffInstance(BuffDefinition typeOfBuff, DateTime startTime)
         {
-            _TypeOfBuff = typeOfBuff;
+            _TypeOfBuff = (BuffDefinitionRef)typeOfBuff;
             StartTime = startTime;
         }
 
@@ -73,7 +73,7 @@ namespace EyE.Traits
                 return baseNumericValue;
 
             // Check if the buff affects the given trait
-            if (TypeOfBuff.Effects.TryGetValue(trait, out List<TraitEffect> modifiers))
+            if (TypeOfBuff.Effects.TryGetValue(trait, out TraitEffectList modifiers))
             {
                 return BuffArithmetic.AggregateAllEffects(baseNumericValue, modifiers);
             }
@@ -90,7 +90,7 @@ namespace EyE.Traits
 
         public void Deserialize(BinaryReader reader)
         {
-            _TypeOfBuff = EyE.Collections.UnityAssetTables.TablesByElementType.DeserializeTableElement<BuffDefinition>(reader);
+            _TypeOfBuff = (BuffDefinitionRef)reader.DeserializeTableElementRef<BuffDefinition>();
             StartTime = reader.DeserializeBinary<SerializableDateTime>();
         }
     }

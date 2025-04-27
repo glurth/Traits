@@ -2,6 +2,7 @@
 using System;
 using EyE.Collections;
 using EyE.Collections.UnityAssetTables;
+using System.Reflection;
 namespace EyE.Traits
 {
     /// <summary>
@@ -29,6 +30,45 @@ namespace EyE.Traits
     /// </summary>
     abstract public class BuffArithmetic
     {
+        private static readonly Dictionary<int, BuffArithmetic> _idRegistry = new Dictionary<int, BuffArithmetic>();
+        public static IReadOnlyDictionary<int, BuffArithmetic> IdRegistry => (IReadOnlyDictionary<int, BuffArithmetic>)_idRegistry;
+
+        static BuffArithmetic()
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types;
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    types = e.Types;
+                }
+
+                if (types == null)
+                    continue;
+
+                foreach (var type in types)
+                {
+                    if (type == null || !type.IsSubclassOf(typeof(BuffArithmetic)) || type.IsAbstract)
+                        continue;
+
+                    if (Activator.CreateInstance(type) is BuffArithmetic instance)
+                    {
+                        if (_idRegistry.ContainsKey(instance.Id))
+                            throw new Exception($"Duplicate BuffArithmetic Id detected: {instance.Id} on {type.Name}");
+
+                        _idRegistry.Add(instance.Id, instance);
+                    }
+                }
+            }
+        }
+        public static bool TryGetById(int id, out BuffArithmetic result)
+        {
+            return _idRegistry.TryGetValue(id, out result);
+        }
         /// <summary>
         /// Aggregates and applies all trait effects to a base value using the defined BuffArithmetic strategies.
         /// 
@@ -51,10 +91,10 @@ namespace EyE.Traits
             Dictionary<BuffArithmetic, List<TraitEffect>> effectsByArithType = new Dictionary<BuffArithmetic, List<TraitEffect>>();
             foreach (TraitEffect buff in buffValues)
             {
-                if (!effectsByArithType.ContainsKey(buff.typeOfArithmetic))  //if this BuffArithmetic is not already a key in the dictionary, add it, with a new list.
-                    effectsByArithType.Add(buff.typeOfArithmetic, new List<TraitEffect>());
+                if (!effectsByArithType.ContainsKey(buff.TypeOfArithmetic))  //if this BuffArithmetic is not already a key in the dictionary, add it, with a new list.
+                    effectsByArithType.Add(buff.TypeOfArithmetic, new List<TraitEffect>());
 
-                effectsByArithType[buff.typeOfArithmetic].Add(buff);
+                effectsByArithType[buff.TypeOfArithmetic].Add(buff);
             }
 
             //Compute the Aggregate of all the modifier values, for each arithmatic type
@@ -83,6 +123,9 @@ namespace EyE.Traits
         /// It is recommend you separate these by about 100, to make room if you later (or mods) want to fit any in between existing ones.
         /// </summary>
         public abstract int OperationOrder { get; }
+
+        public abstract int Id { get; }
+
         /// <summary>
         /// Overridden by descendants to do the math to apply a buff to a value 
         /// </summary>
@@ -129,6 +172,7 @@ namespace EyE.Traits
     {
         public static Additive Instance { get; } = new Additive();
         public override int OperationOrder { get => 200; }
+        public override int Id { get => 1; }
         public override float ComputeAffectedValue(float baseValue, float buffValue)
         {
             return baseValue + buffValue;
@@ -158,7 +202,7 @@ namespace EyE.Traits
         public static Multiplicative Instance { get; } = new Multiplicative();
 
         public override int OperationOrder { get => 100; }
-
+        public override int Id { get => 2; }
         /// <summary>
         /// 
         /// </summary>
@@ -188,18 +232,33 @@ namespace EyE.Traits
     /// Represents an effect that the buff has on a specific trait, consisting of a value and an arithmetic type.
     /// </summary>
     [Serializable]
-    public struct TraitEffect
+    public class TraitEffect
     {
         /// <summary>
         /// The value of the buff effect to apply to the trait.
         /// </summary>
         public float effectAmount;
-        
+
+        [UnityEngine.SerializeField]
+        int encodedBuffArithmetic;
+
         /// <summary>
         /// The arithmetic method to apply the buff (additive, multiplicative, or percentage).
         /// </summary>
-        public BuffArithmetic typeOfArithmetic;
-
+        public BuffArithmetic TypeOfArithmetic
+        {
+            get
+            {
+                if (BuffArithmetic.TryGetById(encodedBuffArithmetic, out var instance))
+                    return instance;
+                throw new Exception($"Unknown BuffArithmetic id: {encodedBuffArithmetic}");
+            }
+            set
+            {
+                encodedBuffArithmetic = value.Id;
+            }
+        }
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="TraitEffect"/> struct.
         /// </summary>
@@ -208,7 +267,7 @@ namespace EyE.Traits
         public TraitEffect(float value, BuffArithmetic type)
         {
             effectAmount = value;
-            typeOfArithmetic = type;
+            TypeOfArithmetic=(type);
         }
 
         /// <summary>
@@ -221,17 +280,27 @@ namespace EyE.Traits
             return new TraitEffect(tuple.value, tuple.type);
         }
     }
-
+    
+    [Serializable]
+    public class TraitEffectList : SerializableNestedList<TraitEffect> {
+        public static implicit operator List<TraitEffect>(TraitEffectList wrapper) => wrapper.internalList;
+        public static implicit operator TraitEffectList(List<TraitEffect> list) => new TraitEffectList { internalList = list };
+    }
     /// <summary>
     /// For each trait affected, a set of modifiers
     /// </summary>
     [System.Serializable]
-    public class TraitEffects : SerializableDictionary<TraitDefinition, List<TraitEffect>>
+    public class TraitEffects : SerializableDictionary<TraitDefinitionRef, TraitEffectList>
     {
-        public TraitEffects() { }
-        public TraitEffects(SerializableDictionary<TraitDefinition, List<TraitEffect>> toCopy) : base(toCopy) { }
+        public TraitEffects():base() { }
+        public TraitEffects(SerializableDictionary<TraitDefinitionRef, TraitEffectList> toCopy) : base(toCopy) { }
         public TraitEffects(int len = 0) : base(len) { }
+        /*public override void OnBeforeSerialize()
+        {
+            base.OnBeforeSerialize();
+        }*/
     }
+
 
     /// <summary>
     /// Represents a type of buff or debuff that can modify specific traits of an entity.
@@ -273,5 +342,12 @@ namespace EyE.Traits
             Duration = duration;
         }
 
+    }
+    [Serializable]
+    public class BuffDefinitionRef : TableElementRef<BuffDefinition>
+    {
+        public BuffDefinitionRef(long id, BuffDefinition reference = null) : base(id, reference)
+        {
+        }
     }
 }

@@ -13,138 +13,85 @@ MonoBehaviour:
   m_Name: AllBuffs
   m_EditorClassIdentifier: 
   serializedList:
-  - id: -1064014576864593932
+  - id: 49
     name: Haste
     Sprite: {fileID: 0}
     Effects:
       editorNewKeyValue:
-        id: 0
-        name: 
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: 0
-          name: 
-          shortName: 
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 0
-      editorNewValueValue: []
+        ID: 0
+      editorNewValueValue:
+        internalList: []
+      isEditorAddKeyValid: 0
+      keyTypeName: 
+      valueTypeName: 
       pairKList:
-      - id: -6539251224368347324
-        name: Speed
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: -4150683179366139559
-          name: Miles per hour
-          shortName: mph
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 0
+      - ID: 42
+      pairVList:
+      - internalList:
+        - effectAmount: 1.2
+          encodedBuffArithmetic: 2
     Duration:
       ticks: 100000000
-  - id: -7322650110700444177
+  - id: 50
     name: Slow
     Sprite: {fileID: 0}
     Effects:
       editorNewKeyValue:
-        id: 0
-        name: 
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: 0
-          name: 
-          shortName: 
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 0
-      editorNewValueValue: []
+        ID: 0
+      editorNewValueValue:
+        internalList: []
+      isEditorAddKeyValid: 0
+      keyTypeName: 
+      valueTypeName: 
       pairKList:
-      - id: -6539251224368347324
-        name: Speed
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: -4150683179366139559
-          name: Miles per hour
-          shortName: mph
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 0
+      - ID: 42
+      pairVList:
+      - internalList:
+        - effectAmount: 0.7
+          encodedBuffArithmetic: 2
     Duration:
       ticks: 100000000
-  - id: 7629311262073576227
+  - id: 51
     name: Small Heal
     Sprite: {fileID: 0}
     Effects:
       editorNewKeyValue:
-        id: 0
-        name: 
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: 0
-          name: 
-          shortName: 
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 0
-      editorNewValueValue: []
+        ID: 0
+      editorNewValueValue:
+        internalList: []
+      isEditorAddKeyValid: 0
+      keyTypeName: 
+      valueTypeName: 
       pairKList:
-      - id: -7728349885440108960
-        name: Health
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: 8546647489814626746
-          name: Hit Points
-          shortName: HP
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 1
+      - ID: 41
+      pairVList:
+      - internalList:
+        - effectAmount: 2
+          encodedBuffArithmetic: 1
     Duration:
       ticks: 0
-  - id: 4408790976429703360
+  - id: 52
     name: Vitality
     Sprite: {fileID: 0}
     Effects:
       editorNewKeyValue:
-        id: 0
-        name: 
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: 0
-          name: 
-          shortName: 
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 0
-      editorNewValueValue: []
+        ID: 0
+      editorNewValueValue:
+        internalList: []
+      isEditorAddKeyValid: 0
+      keyTypeName: 
+      valueTypeName: 
       pairKList:
-      - id: -7728349885440108960
-        name: Health
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: 8546647489814626746
-          name: Hit Points
-          shortName: HP
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 1
-      - id: -6539251224368347324
-        name: Speed
-        Sprite: {fileID: 0}
-        Type: 0
-        Impact: 0
-        Unit:
-          id: -4150683179366139559
-          name: Miles per hour
-          shortName: mph
-          icon: {fileID: 0}
-        SuperDefaultNumericValue: 0
+      - ID: 41
+      - ID: 42
+      pairVList:
+      - internalList:
+        - effectAmount: 1.2
+          encodedBuffArithmetic: 2
+      - internalList:
+        - effectAmount: 3
+          encodedBuffArithmetic: 1
+        - effectAmount: 1.5
+          encodedBuffArithmetic: 2
     Duration:
       ticks: 100000000

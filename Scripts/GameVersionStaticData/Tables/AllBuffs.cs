@@ -15,11 +15,11 @@ namespace EyE.Traits
                 new System.TimeSpan(0, 0, 10),
                 new TraitEffects()
                 {
-
-                    {
-                        AllTraits.Speed,
-                        new List<TraitEffect>{ new TraitEffect(1.2f,  new Multiplicative() ) }// BuffArithmetic.Multiplicative) }
-                    }
+                    new KeyValuePair<TraitDefinitionRef, TraitEffectList>(
+                        //keyvalue pair
+                        AllTraits.Speed, //key
+                        new List<TraitEffect>{ new TraitEffect(1.2f,  Multiplicative.Instance ) }// BuffArithmetic.Multiplicative) }
+                    )
                 }
             ),
         new BuffDefinition(
@@ -27,10 +27,11 @@ namespace EyE.Traits
                 new System.TimeSpan(0, 0, 10),
                 new TraitEffects()
                 {
-                        {
+                    new KeyValuePair<TraitDefinitionRef, TraitEffectList>(
+                        //keyvalue pair
                             AllTraits.Speed,
-                            new List<TraitEffect>{new TraitEffect(0.7f, new Multiplicative()) }
-                        }
+                            new List<TraitEffect>{new TraitEffect(0.7f, Multiplicative.Instance) }
+                    )
                 }
             ),
         new BuffDefinition(
@@ -38,10 +39,11 @@ namespace EyE.Traits
                 null,
                 new TraitEffects()
                 {
-                    {
+                    new KeyValuePair<TraitDefinitionRef, TraitEffectList>(
+                        //keyvalue pair
                         AllTraits.Health,
-                        new List<TraitEffect>{new TraitEffect(2f, new Additive()) }
-                    }
+                        new List<TraitEffect>{new TraitEffect(2f, Additive.Instance) }
+                    )
                 }
             ),
         new BuffDefinition(
@@ -49,14 +51,16 @@ namespace EyE.Traits
                 new System.TimeSpan(0, 0, 10),
                 new TraitEffects()
                 {
-                        {
+                        new KeyValuePair<TraitDefinitionRef, TraitEffectList>(
+                        //keyvalue pair
                             AllTraits.Health,
                             new List<TraitEffect>{new TraitEffect(1.2f, new Multiplicative()) }
-                        },
-                        {
+                        ),
+                        new KeyValuePair<TraitDefinitionRef, TraitEffectList>(
+                        //keyvalue pair
                             AllTraits.Speed,
                             new List<TraitEffect>{new TraitEffect(3f, new Additive()), new TraitEffect(1.5f, new Multiplicative()) }
-                        }
+                        )
 
                 }
             )

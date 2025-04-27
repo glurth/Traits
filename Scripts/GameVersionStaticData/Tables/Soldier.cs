@@ -14,21 +14,24 @@ public static class SoldierTraits
     }
 }*/
 using EyE.Traits;
-public class Soldier : GameEntity
+public class Soldier 
 {
 
-    public Soldier(long id) : base(id, AllEntityTypes.CombatUnit)
+    public Soldier(long id)
     {
+        traits = new TraitsSet(id, AllEntityTypes.CombatUnit);
     }
+
+    public TraitsSet traits;
 
     public void TakeDamage(float damage)
     {
         // Assuming 'Health' is a trait of Soldier (it should be)
-        TraitValue healthTrait = Traits[AllTraits.Health];
+        TraitValue healthTrait = traits[AllTraits.Health];
         if (healthTrait != null)
         {
             // Reduce health by the amount of damage taken, not allowing it to drop below zero
-            float currentHP = base.GetBuffedTraitValue(AllTraits.Health).NumericValue;
+            float currentHP = traits.GetBuffedTraitValue(AllTraits.Health).NumericValue;
             float newHP = currentHP - damage;
             if (newHP < 0) newHP = 0;
             float ratio = newHP / currentHP;

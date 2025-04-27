@@ -13,167 +13,167 @@ MonoBehaviour:
   m_Name: AllMeasurementUnits
   m_EditorClassIdentifier: 
   serializedList:
-  - id: 2818132012176419501
+  - id: 0
     name: Percent
     shortName: '%'
     icon: {fileID: 0}
-  - id: 1247434724494307741
+  - id: 1
     name: Kilogram
     shortName: kg
     icon: {fileID: 0}
-  - id: -3807409433902408358
+  - id: 2
     name: Pound
     shortName: lb
     icon: {fileID: 0}
-  - id: 2018070636071730434
+  - id: 3
     name: Ton
     shortName: t
     icon: {fileID: 0}
-  - id: -7448754097558861545
+  - id: 4
     name: Meter
     shortName: m
     icon: {fileID: 0}
-  - id: 4295951501151426286
+  - id: 5
     name: Kilometer
     shortName: km
     icon: {fileID: 0}
-  - id: 2582603865416134050
+  - id: 6
     name: Centimeter
     shortName: cm
     icon: {fileID: 0}
-  - id: -1516596766496064351
+  - id: 7
     name: Millimeter
     shortName: mm
     icon: {fileID: 0}
-  - id: -6914587027576704713
+  - id: 8
     name: Mile
     shortName: mi
     icon: {fileID: 0}
-  - id: -4002093785902965230
+  - id: 9
     name: Foot
     shortName: ft
     icon: {fileID: 0}
-  - id: 1041358024799543742
+  - id: 10
     name: Inch
     shortName: in
     icon: {fileID: 0}
-  - id: 2679034801012169343
+  - id: 11
     name: Liter
     shortName: L
     icon: {fileID: 0}
-  - id: -4948845623564124098
+  - id: 12
     name: Milliliter
     shortName: mL
     icon: {fileID: 0}
-  - id: 6074747224336298405
+  - id: 13
     name: Cubic Meter
     shortName: cu-m
     icon: {fileID: 0}
-  - id: -5729112180436080447
+  - id: 14
     name: Cubic Centimeter
     shortName: cu-cm
     icon: {fileID: 0}
-  - id: -2552669715009360702
+  - id: 15
     name: Second
     shortName: s
     icon: {fileID: 0}
-  - id: 5348745576230326370
+  - id: 16
     name: Minute
     shortName: min
     icon: {fileID: 0}
-  - id: -3869578987758920011
+  - id: 17
     name: Hour
     shortName: hr
     icon: {fileID: 0}
-  - id: 5594198088907125251
+  - id: 18
     name: Day
     shortName: d
     icon: {fileID: 0}
-  - id: 848608110519045842
+  - id: 19
     name: Week
     shortName: wk
     icon: {fileID: 0}
-  - id: 4307962761929194579
+  - id: 20
     name: Year
     shortName: yr
     icon: {fileID: 0}
-  - id: 5420776278690453755
+  - id: 21
     name: Kilowatt
     shortName: kW
     icon: {fileID: 0}
-  - id: 5559375368851693217
+  - id: 22
     name: Watt
     shortName: W
     icon: {fileID: 0}
-  - id: -6233374338696374216
+  - id: 23
     name: Joule
     shortName: J
     icon: {fileID: 0}
-  - id: 2388604605716466460
+  - id: 24
     name: Newton
     shortName: N
     icon: {fileID: 0}
-  - id: 8140549111721923347
+  - id: 25
     name: Newton-Meter
     shortName: Nm
     icon: {fileID: 0}
-  - id: -9032890014930172358
+  - id: 26
     name: Pound-Foot
     shortName: lb-ft
     icon: {fileID: 0}
-  - id: -1426324843655925218
+  - id: 27
     name: Celsius
     shortName: "\xB0C"
     icon: {fileID: 0}
-  - id: -1700779521193272879
+  - id: 28
     name: Fahrenheit
     shortName: "\xB0F"
     icon: {fileID: 0}
-  - id: -4351337761787422068
+  - id: 29
     name: Kelvin
     shortName: K
     icon: {fileID: 0}
-  - id: 6650321329080700529
+  - id: 30
     name: Meter per second
     shortName: m/s
     icon: {fileID: 0}
-  - id: 2985284298215902131
+  - id: 31
     name: Kilometer per hour
     shortName: km/h
     icon: {fileID: 0}
-  - id: -4150683179366139559
+  - id: 32
     name: Miles per hour
     shortName: mph
     icon: {fileID: 0}
-  - id: -2562516306001074649
+  - id: 33
     name: Decibel
     shortName: dB
     icon: {fileID: 0}
-  - id: -5787183080464084503
+  - id: 34
     name: Volt
     shortName: V
     icon: {fileID: 0}
-  - id: 4171824922701194030
+  - id: 35
     name: Ampere
     shortName: A
     icon: {fileID: 0}
-  - id: 728476870821099876
+  - id: 36
     name: Ohm
     shortName: "\u03A9"
     icon: {fileID: 0}
-  - id: 8546647489814626746
+  - id: 37
     name: Hit Points
     shortName: HP
     icon: {fileID: 0}
-  - id: 7490244833475192983
+  - id: 38
     name: Gold
     shortName: G
     icon: {fileID: 0}
-  - id: -8980917852957444274
+  - id: 39
     name: Dollar
     shortName: $
     icon: {fileID: 0}
-  - id: 7351468148510396638
+  - id: 40
     name: True/False
     shortName: bit
     icon: {fileID: 0}

@@ -117,7 +117,11 @@ public static class BinarySerializeExtension
     {
         return reader.ReadInt64();
     }
-    
+    public static EyE.Collections.UnityAssetTables.TableElementRef<T> DeserializeTableElementRef<T>(this BinaryReader reader) where T: EyE.Collections.UnityAssetTables.TableElement
+    {
+        long traitID = reader.DeserializeLong();
+        return new EyE.Collections.UnityAssetTables.TableElementRef<T>(traitID);
+    }
     /*public static T DeserializeTableElement<T>(this BinaryReader reader) where T: EyE.Collections.UnityAssetTables.TableElement
     {
         return EyE.Collections.UnityAssetTables.TablesByElementType.DeserializeTableElement<T>(reader);

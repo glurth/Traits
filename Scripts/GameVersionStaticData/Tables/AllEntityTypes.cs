@@ -27,11 +27,11 @@ namespace EyE.Traits
         override public List<EntityType> GetDefaultTableElements()
         {
             List<EntityType> list = new List<EntityType>(){
-            new EntityType("CombatUnit", new TraitValues( ( AllTraits.Health, 10f ), ( AllTraits.Speed, 3f ) )),
-            new EntityType("Construction", new TraitValues( ( AllTraits.Health, 10f ) )),
-            new EntityType("Provence", new TraitValues(( AllTraits.Income, 0f ))),
-            new EntityType("Nation", new TraitValues(( AllTraits.Wealth, 0f),( AllTraits.Income, 0f) )),
-        };
+                new EntityType("CombatUnit", new TraitValues( ( AllTraits.Health, 10f ), ( AllTraits.Speed, 3f ) )),
+                new EntityType("Construction", new TraitValues( ( AllTraits.Health, 10f ) )),
+                new EntityType("Provence", new TraitValues(( AllTraits.Income, 0f ))),
+                new EntityType("Nation", new TraitValues(( AllTraits.Wealth, 0f),( AllTraits.Income, 0f) )),
+            };
 
             return list;
         }

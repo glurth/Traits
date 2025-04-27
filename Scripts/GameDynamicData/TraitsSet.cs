@@ -12,10 +12,100 @@ namespace EyE.Traits
             _now += new TimeSpan(1, 0, 0, 0); ;
         }
     }
+    /* look at interfce option- dont like need to cleanup cache in extension class- we leave as base class
+    public interface IHaveBuffableTraits
+    {
+        /// <summary>
+        /// Dictionary of trait definitions to their corresponding values for this entity.
+        /// Initial values come from the EntityType Type
+        /// </summary>
+        public TraitValues baseTraits { get; }
+
+        /// <summary>
+        /// List of active buffs affecting the entity.
+        /// </summary>
+        public List<BuffInstance> appliedBuffs { get; }
+
+        /// <summary>
+        /// Gets the base value of a specific trait without applying buffs.
+        /// </summary>
+        /// <param name="whichTrait">The trait to retrieve the base value for.</param>
+        /// <returns>The base <see cref="TraitValue"/> of the trait.</returns>
+        public TraitValue GetTraitBaseValue(TraitDefinition whichTrait);
+
+        /// <summary>
+        /// Gets the buffed value of a trait, applying any active buffs to the base trait value.
+        /// Removes expired/inactive buffs from the TraitsSet.
+        /// </summary>
+        /// <param name="whichTrait">The trait to retrieve the buffed value for.</param>
+        /// <returns>The buffed <see cref="TraitValue"/> after applying all active buffs.</returns>
+        public TraitValue GetBuffedTraitValue(TraitDefinition whichTrait, DateTime? asOf = null);
+
+        /// <summary>
+        /// Adds a new buff to the entity, applying its effects to the entity's traits.
+        /// </summary>
+        /// <param name="typeOfBuff">The type of buff being applied.</param>
+        /// <param name="startTime">The time when the buff was applied.</param>
+        public void AddBuff(BuffDefinition typeOfBuff, DateTime startTime);
+    }
+    public static class InterfceExtensions
+    {
+        struct LastComputedBuffValue
+        {
+            public DateTime lastComputed;
+            public TraitValue value;
+        }
+        static Dictionary<IHaveBuffableTraits, Dictionary<TraitDefinition, LastComputedBuffValue>> lastComputedBuffedTraitValuesByEntity = new Dictionary<IHaveBuffableTraits, Dictionary<TraitDefinition, LastComputedBuffValue>>();
+        static TimeSpan recomputeTick = new TimeSpan(0, 0, 0, 0, 20);//20 ms
+
+        static public TraitValue GetBuffedTraitValue(this IHaveBuffableTraits entity, TraitDefinition whichTrait, DateTime? asOf = null)
+        {
+            // Retrieve the base trait value
+            TraitValue baseValue = entity.GetTraitBaseValue(whichTrait);
+            TraitValue buffedValue = baseValue;
+            if (asOf == null)
+                asOf = GameStateDateTime.Now;
+            //see if we have this trait's value cached, and if so, how recently that was done.
+            if (lastComputedBuffedTraitValuesByEntity[entity].TryGetValue(whichTrait, out LastComputedBuffValue cachedValue))
+            {
+                if (asOf - cachedValue.lastComputed < recomputeTick)
+                    return cachedValue.value;
+                //expired do recompute anyway
+            }
+            // Apply each active buff to the base value, or remove it if expired
+            for (int i = 0; i < entity.appliedBuffs.Count; i++)
+            {
+                BuffInstance buff = entity.appliedBuffs[i];
+                if (!buff.IsActive(asOf.Value))
+                {
+                    entity.appliedBuffs.RemoveAt(i);
+                }
+                else
+                    buffedValue = buff.CalculateModifiedValue(whichTrait, buffedValue, asOf.Value);
+            }
+            //add or overwrite
+            lastComputedBuffedTraitValuesByEntity[entity][whichTrait] = new LastComputedBuffValue() { lastComputed = asOf.Value, value = buffedValue };
+            return buffedValue;
+        }
+
+        /// <summary>
+        /// Adds a new buff to the entity, applying its effects to the entity's traits.
+        /// </summary>
+        /// <param name="typeOfBuff">The type of buff being applied.</param>
+        /// <param name="startTime">The time when the buff was applied.</param>
+        static public void AddBuff(this IHaveBuffableTraits entity, BuffDefinition typeOfBuff, DateTime startTime)
+        {
+            // Create a new BuffInstance
+            BuffInstance buff = new BuffInstance(typeOfBuff, startTime);
+            if(buff.IsActive(startTime))//sanity check
+                entity.appliedBuffs.Add(buff);
+        }
+    }
+    */
     /// <summary>
-    /// Represents a game entity, such as a character or object, that has traits and can receive buffs.
+    /// Represents an object that has traits and can receive buffs/debuffs upon those traits.
     /// </summary>
-    public class GameEntity : IBinarySaveLoad
+    public class TraitsSet : IBinarySaveLoad
     {
         /// <summary>
         /// Unique identifier for the game entity.
@@ -25,8 +115,12 @@ namespace EyE.Traits
         /// <summary>
         /// The type of the entity, which defines its default traits.
         /// </summary>
-        public EntityType TypeOfEntity { get; private set; }
+        public EntityTypeRef TypeOfEntityRef { get; private set; }
 
+        public EntityType TypeOfEntity
+        {
+            get { return TypeOfEntityRef; }
+        }
         /// <summary>
         /// Dictionary of trait definitions to their corresponding values for this entity.
         /// Initial values come from the EntityType Type
@@ -38,7 +132,7 @@ namespace EyE.Traits
         /// </summary>
         public List<BuffInstance> Buffs { get; private set; }
 
-        public GameEntity()
+        public TraitsSet()
         {
             Traits = new TraitValues();
             Buffs = new List<BuffInstance>();
@@ -48,13 +142,21 @@ namespace EyE.Traits
         /// </summary>
         /// <param name="id">The unique identifier for the entity.</param>
         /// <param name="type">The type of the entity, which defines its traits.</param>
-        public GameEntity(long id, EntityType type)
+        public TraitsSet(long id, EntityType type)
         {
             ID = id;
-            TypeOfEntity = type;
+            TypeOfEntityRef = (EntityTypeRef)type;
             Traits = new TraitValues();
             Buffs = new List<BuffInstance>();
             InitializeTraits(); // Initialize traits based on the entity type
+        }
+
+        public TraitValue this[TraitDefinition i]
+        {
+            get
+            {
+                return new TraitValue(i,Traits[i]);
+            }
         }
 
         /// <summary>
@@ -62,7 +164,7 @@ namespace EyE.Traits
         /// </summary>
         private void InitializeTraits()
         {
-            Traits = new TraitValues(TypeOfEntity.DefaultTraitValues);
+            Traits = new TraitValues(((EntityType)TypeOfEntity).DefaultTraitValues);
         }
 
 
@@ -75,11 +177,11 @@ namespace EyE.Traits
         TimeSpan recomputeTick = new TimeSpan(0,0,0,0,20);//20 ms
         /// <summary>
         /// Gets the buffed value of a trait, applying any active buffs to the base trait value.
-        /// Removes expired/inactive buffs from the GameEntity.
+        /// Removes expired/inactive buffs from the TraitsSet.
         /// </summary>
         /// <param name="whichTrait">The trait to retrieve the buffed value for.</param>
         /// <returns>The buffed <see cref="TraitValue"/> after applying all active buffs.</returns>
-        public TraitValue GetBuffedTraitValue(TraitDefinition whichTrait, DateTime? asOf =null)
+        public TraitValue GetBuffedTraitValue(TraitDefinition whichTrait, DateTime? asOf =null, bool removeExpired=true)
         {
             // Retrieve the base trait value
             TraitValue baseValue = GetTraitBaseValue(whichTrait);
@@ -94,12 +196,13 @@ namespace EyE.Traits
                 //expired do recompute anyway
             }
             // Apply each active buff to the base value, or remove it if expired
-            for(int i=0;i<Buffs.Count;i++)
+            for(int i=Buffs.Count-1;i>=0 ;i--)
             {
                 BuffInstance buff = Buffs[i];
                 if (!buff.IsActive(asOf.Value))
                 {
-                    Buffs.RemoveAt(i);
+                    if(removeExpired)
+                        Buffs.RemoveAt(i);
                 }
                 else
                     buffedValue = buff.CalculateModifiedValue(whichTrait, buffedValue, asOf.Value);
@@ -118,9 +221,9 @@ namespace EyE.Traits
         {
 
             // Retrieve the base trait value from the Traits dictionary
-            if (!Traits.TryGetValue(whichTrait, out TraitValue traitValue))
+            if (!Traits.TryGetValue(whichTrait, out float traitValue))
                 throw new ArgumentException("Trait [" + whichTrait.Name + "] does not exist in Game Entity [" + ID + "]");
-            return traitValue;
+            return new TraitValue(whichTrait,traitValue);
         }
 
         /// <summary>
@@ -132,7 +235,7 @@ namespace EyE.Traits
         {
             if (Traits.ContainsKey(traitIdentifier))
             {
-                Traits[traitIdentifier] = value;
+                Traits[traitIdentifier] = value.NumericValue;
             }
         }
 
@@ -153,7 +256,7 @@ namespace EyE.Traits
         /// </summary>
         /// <param name="entity">The entity receiving the buff.</param>
         /// <param name="buff">The buff being applied.</param>
-        private void BuffApplied(GameEntity entity, BuffInstance buff)
+        private void BuffApplied(TraitsSet entity, BuffInstance buff)
         {
             Console.WriteLine($"Buff {buff.TypeOfBuff.Name} has been applied to {entity.ID}.");
         }
@@ -163,11 +266,11 @@ namespace EyE.Traits
         /// </summary>
         /// <param name="entity">The entity losing the buff.</param>
         /// <param name="buff">The buff being removed.</param>
-        private void BuffRemoved(GameEntity entity, BuffInstance buff)
+        private void BuffRemoved(TraitsSet entity, BuffInstance buff)
         {
             Console.WriteLine($"Buff {buff.TypeOfBuff.Name} has been removed from {entity.ID}.");
         }
-        /*
+        
         /// <summary>
         /// Removes expired buffs from the entity based on the current time.
         /// </summary>
@@ -177,14 +280,14 @@ namespace EyE.Traits
             // Remove all buffs that are no longer active
             Buffs.RemoveAll(buff => !buff.IsActive(asOf));
         }
-        */
+        
 
         //runtime serialization
 
         public void Serialize(BinaryWriter writer)
         {
             ID.Serialize(writer);
-            TypeOfEntity.Serialize(writer);
+            TypeOfEntityRef.Serialize(writer);
             Traits.SerializeDictionary(writer);
             Buffs.SerializeList(writer);
         }
@@ -192,7 +295,7 @@ namespace EyE.Traits
         public void Deserialize(BinaryReader reader)
         {
             ID = reader.DeserializeLong();
-            this.TypeOfEntity = EyE.Collections.UnityAssetTables.TablesByElementType.DeserializeTableElement<EntityType>(reader);
+            TypeOfEntityRef = (EntityTypeRef)reader.DeserializeTableElementRef<EntityType>();//  EyE.Collections.UnityAssetTables.TablesByElementType.DeserializeTableElement<EntityType>(reader);
             Traits.Deserialize(reader);
             Buffs.DeserializeList(reader);
         }

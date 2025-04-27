@@ -12,8 +12,8 @@ using System.Reflection;
 
 
 // Base Drawer for IRef Implementations
-[CustomPropertyDrawer(typeof(TableElement),true)]
-public class TableElementRefDrawer : PropertyDrawer
+//[CustomPropertyDrawer(typeof(TableElement),true)]
+public class OLDTableElementRefDrawer : PropertyDrawer
 {
     //protected abstract Dictionary<long, string> GetAllItems();
     protected Dictionary<long, string> GetAllItems(System.Type tableElementType)
@@ -45,7 +45,7 @@ public class TableElementRefDrawer : PropertyDrawer
         // Get the FieldInfo or PropertyInfo from the SerializedProperty
         //string[] propertyPath = property.propertyPath.Split('.');
         Type targetObjectType = property.serializedObject.targetObject.GetType();
-        FieldInfo fieldInfo = EyE.EditorUnity.Extensions.SerializedPropertyExtensions.GetFieldViaPath(targetObjectType,property.propertyPath); // GetField(property);//  targetObjectType.GetField(propertyPath[0], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+        FieldInfo fieldInfo = null;// EyE.EditorUnity.Collections.SerializedPropertyExtensions.GetFieldViaPath(targetObjectType,property.propertyPath); // GetField(property);//  targetObjectType.GetField(propertyPath[0], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
         // Check if the field has the DrawFullAttribute
         bool attributeOnPropertyMember = fieldInfo != null && fieldInfo.GetCustomAttribute(typeof(DrawElementDataAttribute)) != null;
         if (attributeOnPropertyMember)

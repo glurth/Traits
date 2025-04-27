@@ -12,12 +12,33 @@ namespace EyE.Collections.UnityAssetTables
     {
         long ID { get; }
     }
-    public interface IUniqueName
+
+    static public class IDProvider
     {
-        string Name { get; }
+        static long nid = 0;
+        static object locker= new object();
+        static public long GetNextID()
+        {
+            long i=nid;
+            lock (locker)
+            {
+                nid++;
+            }
+            return i;
+        }
+        static public void IDLoaded(long id)
+        {
+            lock (locker)
+            {
+                if (nid < id)
+                    nid = id + 1;
+            }
+        }
     }
 
     /// <summary>
+    /// // the below has changed. now using seperate TableElementRef class only for references.  
+    /// //nonono
     /// This class can be serialized by both unity and via IBinarySaveLoad- but there are differences.
     /// When serializing/deserializing with unity, all fields are serialized normally, and this is how they will be stored in permanent-at-runtime Tables.
     ///    This means,the tables, and their elements will be editable in the unity editor.
@@ -27,7 +48,7 @@ namespace EyE.Collections.UnityAssetTables
     /// The means that the element type may be used directly as members by other, IBinarySaveLoad classes.
     /// </summary>
     [Serializable]
-    public class TableElement : IUniqueID, IUniqueName, ISerializationCallbackReceiver, IBinarySaveLoad
+    abstract public class TableElement : IUniqueID, ISerializationCallbackReceiver//, IBinarySaveLoad
     {
         [SerializeField] //for display in editor- overrwitten by processed name->id when deserialized
         protected long id;
@@ -39,51 +60,117 @@ namespace EyE.Collections.UnityAssetTables
 
         [SerializeField]
         private string name;
+
+        protected TableElement()
+        {
+            id = IDProvider.GetNextID();
+        }
+
         public string Name
         {
             get => name;
             protected set
             {
                 name = value;
-                id = ReGenerateConsistentID();
             }
         }
 
         public void OnAfterDeserialize()
         {
-            id = ReGenerateConsistentID();
+            IDProvider.IDLoaded(id);
         }
 
         public void OnBeforeSerialize()
         { }
-
-        virtual protected long ReGenerateConsistentID()
-        {
-            return GenerateConsistentIDFromName(name);
-        }
-        static public long GenerateConsistentIDFromName(string name)
-        {
-            using (var md5 = MD5.Create())
-            {
-                byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(name));
-                return BitConverter.ToInt64(hashBytes, 0);
-            }
-        }
-        //only serialize the id- we will get the reference from the table on deserialize
+        /*
+        //for runtime stuff- only serialize the id- we will get the reference from the table on deserialize
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(ID);
         }
-
+        //at runtime, TableElements are not loaded from the save file.  Only the refence ID is loaded, and used to get a reference to the already-loaded table.
         public void Deserialize(BinaryReader reader)
         {
-            throw new NotImplementedException("It is not possible to deserialize a TableElement Reference directly.  Use [T TablesByElementType.DeserializeTableElement<T>(BinaryReader reader) where T: TableElement] to create a reference to the element stored in the table");
+            throw new NotImplementedException("It is not possible to deserialize a TableElement Reference directly.  Instead, deserialize the reference from the containing object using ``TablesByElementType.DeserializeTableElement<T>(BinaryReader reader)`` to get a reference to the element stored in the appropriate table");
+            //throw new NotImplementedException("TableElement based class, "+GetType()+" does not override the Derserialize Method.");
+        }
+        */
+    }
+    
+    [Serializable]
+    public class TableElementRef<T> : ISerializationCallbackReceiver, IBinarySaveLoad where T:TableElement
+    {
+        [SerializeField] long ID;
+        [NonSerialized] T reference=null;
 
+        public TableElementRef(long id, T reference=null)
+        {
+            this.ID = id;
+            if (reference != null)
+                this.reference = reference;
+            else
+                PopulateReference();
+        }
+
+        public T Value
+        {
+            get
+            {
+                if (reference == null)
+                    PopulateReference();
+                return reference;
+            }
+            set
+            {
+                ID = value.ID;
+                reference = value;
+            }
+        }
+        public Type refToType => typeof(T);
+
+        public static implicit operator T(TableElementRef<T> r) => r?.Value;
+        public static implicit operator TableElementRef<T>(T r) => new TableElementRef<T>(r.ID, r );
+
+        public void PopulateReference()
+        {
+            if (ID != -1)
+                reference = TablesByElementType.GetTableElement<T>(ID);
+            else
+                Debug.LogWarning("TableElementReference<" + typeof(T) + "> ID number is -1, unable to get reference.");
+        }
+        //unity serialization stuff.. for references in immutabletables
+        public void OnBeforeSerialize()
+        {
+            
+            if (reference != null)
+                ID = reference.ID;
+            else
+            {
+                if(ID==-1)
+                    Debug.LogWarning("Attempting to serialize TableElementReference<"+typeof(T)+"> to ID number, but the reference is null.  Serializing -1 ID.");
+                //else
+                    //Debug.LogWarning("Attempting to serialize TableElementReference<" + typeof(T) + "> to ID number: "+ID+", but the reference is null.  May not have been populated yet.  Storing ID anyway.");
+            }
+        }
+        //Use the serialized id to get ref from the table
+        public void OnAfterDeserialize()
+        {
+           // Debug.Log("OnDeserialize TableElementRef<"+typeof(T)+">");
+           // PopulateReference(); // we cannot do this yet-  the referenced tables might not be loaded yet
+        }
+        //runtime for state storage
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(ID);
+        }
+        //at runtime, TableElements are not loaded from the save file.  Only the reference ID is loaded, and used to get a reference to the already-loaded table asset.
+        public void Deserialize(BinaryReader reader)
+        {
+            ID=reader.ReadInt64();
+            PopulateReference();
         }
 
     }
-
-
 
     /// <summary>
     /// Base class for tables of objects that will not change at runtime.
@@ -92,6 +179,8 @@ namespace EyE.Collections.UnityAssetTables
     public abstract class ImmutableTableBase : ScriptableObject, IEnumerable<TableElement>
     {
         public abstract Type TableElementType { get; }
+
+
         /// <summary>
         /// Clears and repopulates the table with default data, then initializes the table for runtime usage.
         /// Override and call base version to perform addition actions after the table is setup.
@@ -106,6 +195,9 @@ namespace EyE.Collections.UnityAssetTables
         /// Clears then populates the table with default elements.
         /// </summary>
         abstract public void PopulateWithDefault();
+        /// <summary>
+        /// Initialziation Operations to be performed after the table has been loaded.
+        /// </summary>
         abstract public void Initialize();
         abstract public void AddAsModTable();
 
@@ -145,20 +237,21 @@ namespace EyE.Collections.UnityAssetTables
             {
                 if (_instance == null)
                 {
-                    LoadOrCreate();//populates _instance
-                    _instance.Initialize();
-                    TablesByElementType.Register(_instance);
+                    throw new Exception("Instance is not yet initialized");
+                    //LoadOrNull();//populates _instance
+                   // if(_instance==null) return null;
+                   // _instance.Initialize();
+                   // TablesByElementType.Register(_instance);
                 }
                 return _instance;
             }
         }
         protected static ImmutableTable<T> _instance = null;
         #endregion
-        #region RegisterTable with TablesByElementType
+        
         public override Type TableElementType { get { return typeof(T); } }
 
-        #endregion
-
+        
         #region RuntimeAndSerializedFields
         /// <summary>
         /// The internal runtime dictionary that stores the objects, keyed by their ID.
@@ -200,7 +293,9 @@ namespace EyE.Collections.UnityAssetTables
 
         override public bool TryGetElement(long id, out TableElement obj)
         {
-            return TryGetElement(id, out obj);
+            bool found = idBasedDictionary.TryGetValue(id, out T typedObj);
+            obj = typedObj as TableElement;
+            return found;
         }
 
         /// <summary>
@@ -213,7 +308,7 @@ namespace EyE.Collections.UnityAssetTables
         public T GetElement(long id) => idBasedDictionary[id];
 
         /// <summary>
-        /// Retrieves an object by its name, using a consistent ID generated from the name.
+        /// Retrieves an object by its name, by iterating through the table.  Slow, use for init only.
         /// Throws an exception if the object is not found.
         /// </summary>
         /// <param name="name">The name of the object to retrieve.</param>
@@ -221,9 +316,11 @@ namespace EyE.Collections.UnityAssetTables
         /// <exception cref="Exception">Thrown if the object is not found.</exception>
         public static T GetByName(string name)
         {
-            long ID = TableElement.GenerateConsistentIDFromName(name);
-            if (!Instance.idBasedDictionary.ContainsKey(ID)) throw new Exception("Expected " + typeof(T).Name + " [" + name + "] not preset in ImmutableTable " + Instance.name);
-            return Instance.idBasedDictionary[ID];
+            foreach (var kvp in Instance.idBasedDictionary)
+                if (kvp.Value.Name == name)
+                    return kvp.Value;
+
+            throw new Exception("Expected " + typeof(T).Name + " [" + name + "] not preset in ImmutableTable " + Instance.name);
         }
 
         #endregion
@@ -241,6 +338,7 @@ namespace EyE.Collections.UnityAssetTables
 
         override public void Initialize()
         {
+            Debug.Log("ImmutableTable<" + typeof(T).Name + ">: rebuilding Internal dictionary from serialized data");
             idBasedDictionary.Clear();
             foreach (T obj in serializedList)
             {
@@ -249,8 +347,8 @@ namespace EyE.Collections.UnityAssetTables
                     if (!idBasedDictionary.ContainsKey(obj.ID))
                         idBasedDictionary[obj.ID] = obj;
                     else
-                        throw new InvalidDataException("ID collision detected while initializing ImmutableTable<"+typeof(T).Name+">: "+name+". "
-                            + "\n    Names generating collision: '" +obj.Name+ "' ,'" + idBasedDictionary[obj.ID].Name+"'");
+                        throw new InvalidDataException("ID collision detected while initializing ImmutableTable<" + typeof(T).Name + ">: ");// +name+". "
+                            //+ "\n    Names generating collision: '" +obj.Name+ "' ,'" + idBasedDictionary[obj.ID].Name+"'");
                 }
             }
         }
@@ -267,26 +365,83 @@ namespace EyE.Collections.UnityAssetTables
         /// </summary>
         public void OnAfterDeserialize()
         {
-            Initialize();
+           // Debug.Log("After loaded table ImmutableTable<" + typeof(T).Name + ">");
+           Initialize();
         }
 
         /// <summary>
         /// Called during lazy initialization of Instance, ensuring that the singleton is loaded from Resources.
         /// </summary>
-        static void LoadOrCreate()
+        static void LoadOrNull<TTableType>() where TTableType : ImmutableTable<T>
         {
-            //Debug.Log("Loading AllImmuatable type " + typeof(S).Name);
-            ImmutableTable<T>[] foundInstances = Resources.LoadAll<ImmutableTable<T>>("GameVersionData");
+            Debug.Log("Loading "+typeof(TTableType).Name+ ":ImmutableTable<" + typeof(T).Name+">");
+            TTableType[] foundInstances = Resources.LoadAll<TTableType>("GameVersionData");
+            
+            Debug.Log("Loading ImmutableTable<" + typeof(T).Name + "> List complete, confirming results.");
+            if (foundInstances==null)
+            {
+                Debug.LogWarning("Loading ImmutableTable<" + typeof(T).Name + "> asset, found NO data in Resources/GameVersionData.");
+                return;
+            }
             if (foundInstances.Length > 1)
                 Debug.LogWarning("Loading ImmutableTable<" + typeof(T).Name + "> asset, found more that one in Resources/GameVersionData.  Using first found.");
             if (foundInstances.Length == 0)
             {
-                Debug.LogWarning("Loading ImmutableTable<" + typeof(T).Name + "> asset, found NO data in Resources/GameVersionData.  Using default values.");
-                _instance = CreateInstance<ImmutableTable<T>>();
+                Debug.LogWarning("Loading ImmutableTable<" + typeof(T).Name + "> asset, found NO data in Resources/GameVersionData.");
+                return;
+            }
+            else
+                _instance = //Instantiate
+                    (ImmutableTable<T>)(foundInstances[0]);
+
+        //    _instance.Initialize();
+            TablesByElementType.Register(_instance);
+        }
+
+        /// <summary>
+        /// Called during lazy initialization of Instance, ensuring that the singleton is loaded from Resources.
+        /// </summary>
+        static public void LoadOrCreate<TTableType>() where TTableType : ImmutableTable<T>
+        {
+            LoadOrNull<TTableType>();
+            if (_instance == null)
+            {
+                #if UNITY_EDITOR
+
+                                Debug.LogWarning("Loading ImmutableTable " + typeof(TTableType).Name + " asset, found NO data in Resources/GameVersionData.  Using default values.");
+                                _instance = CreateInstance<TTableType>();
+                                //_instance.Reset(); // reset called automatically by creatinstance
+                                UnityEditor.AssetDatabase.CreateAsset(_instance, "Assets/Resources/GameVersionData/" + typeof(TTableType).Name + ".asset");
+                                
+                                //_instance.Initialize();
+                                TablesByElementType.Register(_instance);
+                #else
+                                throw new  IOException("Loading ImmutableTable<" + typeof(T).Name + "> asset, found NO data in Resources/GameVersionData.");
+                #endif
+            }
+            
+            /*
+            //Debug.Log("Loading AllImmuatable type " + typeof(S).Name);
+            ImmutableTable<T>[] foundInstances = Resources.LoadAll<ImmutableTable<T>>("GameVersionData");
+            if (foundInstances.Length > 1)
+                Debug.LogWarning("Loading ImmutableTable: " + typeof(TTableType).Name + " asset, found more that one in Resources/GameVersionData.  Using first found.");
+            if (foundInstances.Length == 0)
+            {
+#if UNITY_EDITOR
+
+                Debug.LogWarning("Loading ImmutableTable " + typeof(TTableType).Name + " asset, found NO data in Resources/GameVersionData.  Using default values.");
+                _instance = CreateInstance<TTableType>();
                 _instance.Reset();
+                UnityEditor.AssetDatabase.CreateAsset(_instance, "Assets/Resources/GameVersionData/" + typeof(TTableType).Name + ".asset");
+
+#else
+                throw new  IOException("Loading ImmutableTable<" + typeof(T).Name + "> asset, found NO data in Resources/GameVersionData.");
+#endif
             }
             else
                 _instance = Instantiate(foundInstances[0]);
+            _instance.Initialize();
+            TablesByElementType.Register(_instance);*/
         }
         #endregion
         #region Mods
@@ -301,13 +456,11 @@ namespace EyE.Collections.UnityAssetTables
                     Instance.idBasedDictionary[item.ID] = item;
             }
         }
-        #endregion
+#endregion
         #region IEnumerable
-        // Implement GetEnumerator for IEnumerable<T>
-      //  public IEnumerator<T> GetEnumerator() => idBasedDictionary.Values.GetEnumerator();
+
         public override IEnumerator<TableElement> GetEnumerator() => idBasedDictionary.Values.GetEnumerator();
-        // Explicit interface implementation for non-generic IEnumerable
-       // IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         #endregion
     }
 
@@ -317,14 +470,31 @@ namespace EyE.Collections.UnityAssetTables
     /// </summary>
     public static class TablesByElementType
     {
-        static private Dictionary<Type, ImmutableTableBase> tablesByType = new Dictionary<Type, ImmutableTableBase>();
+        static private Dictionary<Type, ImmutableTableBase> tablesByType = null;
 
+        static bool init = false;
+        [RuntimeInitializeOnLoadMethod]
+        [UnityEditor.InitializeOnLoadMethod]
         static void Initialize()
         {
-            ImmutableTableBase b = EyE.Traits.AllBuffs.Instance;
+            if (init) return;
+            init = true;
+            tablesByType = new Dictionary<Type, ImmutableTableBase>();
+            Debug.Log("AllMeasurementUnits: Initializing.");
+            EyE.Traits.AllMeasurementUnits.LoadOrCreate<EyE.Traits.AllMeasurementUnits>();
+            ImmutableTableBase m = EyE.Traits.AllMeasurementUnits.Instance;
+
+            Debug.Log("AllTraits: Initializing.");
+            EyE.Traits.AllTraits.LoadOrCreate<EyE.Traits.AllTraits>();
             ImmutableTableBase t = EyE.Traits.AllTraits.Instance;
-            ImmutableTableBase m = AllMeasurementUnits.Instance;
+
+            Debug.Log("AllEntityTypes: Initializing.");
+            EyE.Traits.AllEntityTypes.LoadOrCreate<EyE.Traits.AllEntityTypes>();
             ImmutableTableBase e = EyE.Traits.AllEntityTypes.Instance;
+
+            Debug.Log("AllBuffs: Initializing.");
+            EyE.Traits.AllBuffs.LoadOrCreate<EyE.Traits.AllBuffs>();
+            ImmutableTableBase b = EyE.Traits.AllBuffs.Instance;
 
         }
 
@@ -347,13 +517,7 @@ namespace EyE.Collections.UnityAssetTables
         /// <returns>Return the table that holds this element type.  If so such table has been registered, returns null</returns>
         public static ImmutableTable<T> GetTable<T>() where T : TableElement
         {
-            Initialize();
-            if (tablesByType.TryGetValue(typeof(T), out var table))
-            {
-                return table as ImmutableTable<T>;
-            }
-
-            return null;
+            return (ImmutableTable<T>)GetTable(typeof(T));
         }
 
         /// <summary>
@@ -363,7 +527,7 @@ namespace EyE.Collections.UnityAssetTables
         /// <returns>Return the table that holds this element type.  If so such table has been registered, returns null</returns>
         public static ImmutableTableBase GetTable(System.Type typeOfElement)
         {
-            Initialize();
+            if (tablesByType == null) throw new Exception("TablesByElementType has not been initialized yet, no tables registered including:" + typeOfElement);
             if (tablesByType.TryGetValue(typeOfElement, out ImmutableTableBase table))
             {
                 return table;
@@ -379,7 +543,12 @@ namespace EyE.Collections.UnityAssetTables
         /// <returns></returns>
         static public T GetTableElement<T>(long id) where T : TableElement
         {
-            return GetTable<T>().GetElement(id);
+            ImmutableTable<T> table = GetTable<T>();
+            if (table == null)
+            {
+                throw new Exception("TablesByElementType: unable to find ImmutableTable of type : " + typeof(T) + " in registry: "+ string.Join(",", tablesByType.Keys) );
+            } 
+            return table.GetElement(id);
         }
 
 
